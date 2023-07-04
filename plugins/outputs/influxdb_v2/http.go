@@ -14,7 +14,7 @@ import (
 	"path"
 	"strconv"
 	"time"
-
+        "golang.org/x/net/http2"
 	"github.com/influxdata/telegraf"
 	"github.com/influxdata/telegraf/config"
 	"github.com/influxdata/telegraf/internal"
@@ -126,6 +126,10 @@ func NewHTTPClient(cfg *HTTPConfig) (*httpClient, error) {
 			Proxy:           proxy,
 			TLSClientConfig: cfg.TLSConfig,
 		}
+                http2Trans, err := http2.ConfigureTransports(transport)
+                if err == nil {
+                   http2Trans.ReadIdleTimeout = 5 * time.Second
+                }
 	case "unix":
 		transport = &http.Transport{
 			Dial: func(_, _ string) (net.Conn, error) {
